@@ -2,7 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#define vertLen 3
+#define vertLen 4
 static SDL_Vertex vert[vertLen];
 
 static SDL_Window *window = NULL; // the window where our rendering takes place in (and game also, its a window duh)
@@ -47,29 +47,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 void render()
 {
-    // center
-    vert[0].position.x = 400;
-    vert[0].position.y = 150;
-    vert[0].color.r = 1.0;
-    vert[0].color.g = 0.0;
-    vert[0].color.b = 0.0;
-    vert[0].color.a = 1.0;
-
-    // left
-    vert[1].position.x = 200;
-    vert[1].position.y = 450;
-    vert[1].color.r = 0.0;
-    vert[1].color.g = 0.0;
-    vert[1].color.b = 1.0;
-    vert[1].color.a = 1.0;
-
-    // right
-    vert[2].position.x = 600;
-    vert[2].position.y = 450;
-    vert[2].color.r = 0.0;
-    vert[2].color.g = 1.0;
-    vert[2].color.b = 0.0;
-    vert[2].color.a = 1.0;
+    // Setup the vertices for the rectangle (top-left, top-right, bottom-left, bottom-right)
+    vert[0] = (SDL_Vertex){.position = {200, 150}, .color = {255, 0, 0, 255}}; // Top-left
+    vert[1] = (SDL_Vertex){.position = {600, 150}, .color = {0, 255, 0, 255}}; // Top-right
+    vert[2] = (SDL_Vertex){.position = {200, 450}, .color = {0, 0, 255, 255}}; // Bottom-left
+    vert[3] = (SDL_Vertex){.position = {600, 450}, .color = {255, 255, 0, 255}}; // Bottom-right
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer); // Clear the canvas/render screen
