@@ -9,5 +9,5 @@ set(CMAKE_BUILD_TYPE Debug)
 
 add_executable(cpong src/main.c) # Make an executable based on these files or/and paths
 
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE SDL3)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE SDL3-static)
 
