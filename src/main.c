@@ -8,16 +8,16 @@ static SDL_Vertex vert[vertLen];
 static SDL_Window *window = NULL; // the window where our rendering takes place in (and game also, its a window duh)
 static SDL_Renderer *renderer = NULL; // the variable where we will mash shit-in to print a beautiful or disfigured picture (WHEN we actually tell the GPU to render it)
 
-static const char appname[] = "Voxel Game";
+static const char appName[] = "Levviata's C Based Pong";
 static const char version[] = "v0.0.0";
-static const char appIdentifier[] = "me.levviata.voxelgame";
+static const char appIdentifier[] = "me.levviata.cpong";
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
 
     // set our basic metadata, todo: expand later
-    SDL_SetAppMetadata(appname, version, appIdentifier); 
+    SDL_SetAppMetadata(appName, version, appIdentifier); 
         
     // Initalize subsystems, these can be manually closed with SDL_QuitSubSystem().
     // For when we close our app we use SDL_QuitSubSystem() for each subsystem and then SDL_Quit() for recleanup (as far as I know)
@@ -27,7 +27,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     
     /* Create the window and the renderer! */
-    if (!SDL_CreateWindowAndRenderer(appname, 800, 600, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer(appName, 800, 600, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
