@@ -24,6 +24,8 @@ static const int speed = 1;
 typedef struct {
     SDL_Renderer* renderer;
     SDL_Window *window;
+    Paddle;
+    Ball;
     SDL_FRect left_player;
     double yPlayer;
     double yLastPlayer;
@@ -31,13 +33,18 @@ typedef struct {
     double yAI;
     double yLastAI;
     float smoothing;
-} AppState; // this struct passes around ONLY variables that change during runtime (to not bloat the hardware's memory).
+} AppState;
 
-double lerp(double varStart, double varEnd, float t) {
-    double result;
-    result = varStart + (varEnd - varStart) * t;
-    return result;
-}
+typedef struct {
+    int x, y;
+    int width, height;
+} Paddle;
+
+typedef struct {
+    int x, y;
+    int radius;
+    int velX, velY;
+} Ball;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -84,6 +91,41 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     return SDL_APP_CONTINUE;
 }
 
+// Function to draw a filled circle
+void drawFilledCircle(SDL_Renderer* renderer, int centerX, int centerY, int radius) {
+    for (int w = 0; w < radius * 2; w++) {
+        for (int h = 0; h < radius * 2; h++) {
+            int dx = radius - w; // horizontal offset
+            int dy = radius - h; // vertical offset
+            if ((dx * dx + dy * dy) <= (radius * radius)) {
+                SDL_RenderPoint(renderer, centerX + dx, centerY + dy);
+            }
+        }
+    }
+}
+
+bool checkCollision(Ball* ball, int xPaddle, int yPaddle, int widthPaddle, int heightPaddle) {
+    // Check if the ball is within the paddle's x range
+    if (ball->x + ball->radius >= xPaddle && ball->x - ball->radius <= xPaddle + widthPaddle) {
+        // Check if the ball's y position is within the paddle's height range
+        if (ball->y + ball->radius >= yPaddle && ball->y - ball->radius <= yPaddle + heightPaddle) {
+            return true; // Collision detected
+        }
+    }
+    return false; // No collision
+}
+
+void inputUpdate(AppState *state) 
+{
+    const Uint8 *keyState = SDL_GetKeyboardState(NULL);
+    if (keyState[SDL_SCANCODE_UP] || keyState[SDL_SCANCODE_W]) {
+        state->yPlayer -= 5;
+    }
+    if (keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_S]) {
+        state->yPlayer += 5;
+    }
+}
+
 void update(AppState *state) 
 {
     SDL_GetWindowSize(state->window, &windowWidth, &windowHeight); // todo: if window is the same as last tick continue (so dont get the thing since it's size didnt change)
@@ -111,13 +153,16 @@ void render(AppState *state)
     SDL_SetRenderDrawColor(state->renderer, 0, 0, 0, 255); // Set black color
     SDL_RenderClear(state->renderer);
 
-    // Set the draw color for the rectangle outline
+    // Set draw color to white (so that everything after the bg is white)
     SDL_SetRenderDrawColor(state->renderer, 255, 255, 255, 255); // Set red color
 
     // Fill our left player
     SDL_RenderFillRect(state->renderer, &state->left_player);
     // Render our left player
     SDL_RenderRect(state->renderer, &state->left_player);
+    
+    // Draw ball
+    drawFilledCircle(state->renderer, 400, 300, 10);
 
     // Fill our right player
     SDL_RenderFillRect(state->renderer, &state->right_ai_player);
@@ -134,16 +179,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     Uint32 frameStart = SDL_GetTicks();
     int frameTime;
 
-    const Uint8 *keyState = SDL_GetKeyboardState(NULL);
-    if (keyState[SDL_SCANCODE_UP] || keyState[SDL_SCANCODE_W]) {
-        state->yPlayer -= 5;
-    }
-    if (keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_S]) {
-        state->yPlayer += 5;
-    }
-
-    // Render your graphics
+    // Update our input and prepare it to next update() call
+    inputUpdate(state);
+    // Update our logic
     update(state);
+    // Render our objects
     render(state);
 
     // Calculate frame time
