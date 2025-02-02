@@ -77,42 +77,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    AppState* state = (AppState*)appstate; // Cast the void pointer back to AppState
-
-    Uint32 frameStart = SDL_GetTicks();
-    int frameTime;
-
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS; 
     }
-
-    if (event->type == SDL_EVENT_KEY_DOWN) {
-        switch (event->key.scancode) {
-            case SDL_SCANCODE_UP: // Arrow Up Key
-            case SDL_SCANCODE_W:  // 'W' key
-                state->yPlayer -= 5;
-                // e.g. state->player.y -= 5; // Move up
-                break;
-
-            case SDL_SCANCODE_DOWN: // Arrow Down Key
-            case SDL_SCANCODE_S:    // 'S' key
-                state->yPlayer += 5;
-                // e.g. state->player.y += 5; // Move down
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    // Calculate frame time
-    frameTime = SDL_GetTicks() - frameStart;
-
-    // Delay to maintain 60 FPS
-    if (frameTime < FRAME_DELAY) {
-        SDL_Delay(FRAME_DELAY - frameTime);
-    }
-
 
     return SDL_APP_CONTINUE;
 }
@@ -167,6 +134,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     Uint32 frameStart = SDL_GetTicks();
     int frameTime;
 
+    const Uint8 *keyState = SDL_GetKeyboardState(NULL);
+    if (keyState[SDL_SCANCODE_UP] || keyState[SDL_SCANCODE_W]) {
+        state->yPlayer -= 5;
+    }
+    if (keyState[SDL_SCANCODE_DOWN] || keyState[SDL_SCANCODE_S]) {
+        state->yPlayer += 5;
+    }
+
     // Render your graphics
     update(state);
     render(state);
@@ -176,7 +151,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     // Delay to maintain 60 FPS
     if (frameTime < FRAME_DELAY) {
-        SDL_Delay(FRAME_DELAY - frameTime);
+       SDL_Delay(FRAME_DELAY - frameTime);
     }
 
     return SDL_APP_CONTINUE;
